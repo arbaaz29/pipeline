@@ -88,7 +88,7 @@ pipeline {
 
         stage('Trivy Image Scan') {
             steps {
-                sh 'trivy fs --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${DOCKERHUB_REPO}'
+                sh 'trivy image ${DOCKERHUB_REPO} --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html'
             }
         }
 
