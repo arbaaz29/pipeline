@@ -16,4 +16,4 @@ spec:
         - name: front
           image: arbaazij/front_jnks
           ports:
-            - containerPort: 80
+            - containerPort: 3000
