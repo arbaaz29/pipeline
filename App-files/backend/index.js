@@ -48,17 +48,18 @@ const Note = mongoose.model('Note', noteSchema);
 // API Routes
 
 // Get all notes
-app.get('/api/notes', async (req, res) => {
+app.get('/notes', async (req, res) => {
     try {
         const notes = await Note.find().sort({ updatedAt: -1 });
-        res.json(notes);
+        const notesWithId = notes.map(note => ({ ...note.toJSON(), id: note._id }));
+        res.json(notesWithId);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching notes', error: error.message });
     }
 });
 
 // Get a single note
-app.get('/api/notes/:id', async (req, res) => {
+app.get('/notes/:id', async (req, res) => {
     try {
         const note = await Note.findById(req.params.id);
         if (!note) {
@@ -71,7 +72,7 @@ app.get('/api/notes/:id', async (req, res) => {
 });
 
 // Create a new note
-app.post('/api/notes', async (req, res) => {
+app.post('/notes', async (req, res) => {
     try {
         const { title, content } = req.body;
         
@@ -92,7 +93,7 @@ app.post('/api/notes', async (req, res) => {
 });
 
 // Update a note
-app.put('/api/notes/:id', async (req, res) => {
+app.put('/notes/:id', async (req, res) => {
     try {
         const { title, content } = req.body;
         
@@ -117,7 +118,7 @@ app.put('/api/notes/:id', async (req, res) => {
 });
 
 // Delete a note
-app.delete('/api/notes/:id', async (req, res) => {
+app.delete('/notes/:id', async (req, res) => {
     try {
         const deletedNote = await Note.findByIdAndDelete(req.params.id);
         

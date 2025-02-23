@@ -14,21 +14,14 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Stage 2: Serve with Node.js
-FROM node:20-alpine
+# Stage 2: Serve with Nginx
+FROM node:20.8.0-slim
 
-# Set working directory
-WORKDIR /app
+# Copy built files from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Install 'serve' globally to serve static files
-RUN npm install -g serve
-
-# Copy the built files from the builder stage
-COPY --from=builder /app/dist /app
-
-# Expose the port
+# Expose port 80
 EXPOSE 3000
 
-# Serve the application
-CMD ["serve", "-s", ".", "-l", "3000"]
-
+# Start Nginx server
+CMD ["npx", "serve", "-s", "build", "-l", "3000"]

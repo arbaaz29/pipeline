@@ -1,5 +1,13 @@
 version: '3'
 services:
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
   api:
     build: ./backend
     ports:
@@ -9,7 +17,7 @@ services:
   client:
     build: ./frontend
     ports:
-      - "80:80"
+      - "3000:3000"
     depends_on:
       - api
   mongo:
