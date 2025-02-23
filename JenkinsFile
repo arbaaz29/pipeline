@@ -81,6 +81,7 @@ pipeline {
                         dir('App-files/backend'){
                             sh 'docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} .'
                             sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                            sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
                         }
                     }
                 }
