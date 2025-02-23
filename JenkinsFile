@@ -80,7 +80,7 @@ pipeline {
                     withCredentials([usernamePassword (credentialsId:"docker_creds", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
                         dir('App-files/backend'){
                             sh 'docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} .'
-                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REG"
+                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
                         }
                     }
                 }
