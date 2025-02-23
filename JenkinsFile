@@ -76,12 +76,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernameColonPassword)credentialsId:'docker_creds', variable:'dkr_cred']){
-
-                    }
-                    dir('App-files/backend'){
-                        sh 'docker build -t ${DOCKERHUB_REPO} .'
-                        docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
-                            dockerImage.push()
+                        dir('App-files/backend'){
+                            def customImage = docker.build('${DOCKERHUB_REPO}')
+                            customImage.push()
                         }
                     }
                 }
