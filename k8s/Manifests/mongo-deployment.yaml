@@ -13,7 +13,7 @@ spec:
         app: mongo
     spec:
       containers:
-        - name: back
-          image: mongo:4
+        - name: mongo
+          image: mongo:4.4
           ports:
             - containerPort: 27017

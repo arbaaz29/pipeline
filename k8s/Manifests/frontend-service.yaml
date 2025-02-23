@@ -4,7 +4,7 @@ metadata:
   name: frontend-service
 spec:
   selector:
-    app: back
+    app: front
   ports:
     - protocol: TCP
       port: 3000
