@@ -4,7 +4,7 @@ metadata:
   name: mongo
 spec:
   selector:
-    app: back
+    app: mongo
   ports:
     - protocol: TCP
       port: 27017
