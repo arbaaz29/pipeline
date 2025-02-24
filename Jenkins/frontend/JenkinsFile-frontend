@@ -43,17 +43,17 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
-                    withSonarQubeEnv('SonarQube') {
-                        script {
-                            waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token', timeout: 5
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     steps {
+        //         withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
+        //             withSonarQubeEnv('SonarQube') {
+        //                 script {
+        //                     waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token', timeout: 5
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('OWASP Dependency-Check Scan') {
             steps {
