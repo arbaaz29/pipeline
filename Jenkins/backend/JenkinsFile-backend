@@ -43,26 +43,26 @@ pipeline {
             }
         }
 
-        // stage('Quality Gate') {
-        //     steps {
-        //         withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
-        //             withSonarQubeEnv('SonarQube') {
-        //                 script {
-        //                     waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Quality Gate') {
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
+                    withSonarQubeEnv('SonarQube') {
+                        script {
+                            waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token', , timeout: 5
+                        }
+                    }
+                }
+            }
+        }
 
-        // stage('OWASP Dependency-Check Scan') {
-        //     steps {
-        //         dir('App-files/backend') {
-        //             dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-        //             dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-        //         }
-        //     }
-        // }
+        stage('OWASP Dependency-Check Scan') {
+            steps {
+                dir('App-files/backend') {
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
+            }
+        }
 
         stage('Trivy File Scan') {
             steps {

@@ -48,7 +48,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
                     withSonarQubeEnv('SonarQube') {
                         script {
-                            waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token'
+                            waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token', timeout: 5
                         }
                     }
                 }
