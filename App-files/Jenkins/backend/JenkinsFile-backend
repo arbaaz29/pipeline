@@ -1,0 +1,126 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk'
+        nodejs 'nodejs'
+    }
+
+    environment {
+        SONAR_SCANNER_HOME = tool 'sonar_scanner'
+        SONAR_PROJECT_KEY = 'npm_back'
+        SONAR_HOST = "http://localhost:9000/"
+        DOCKERHUB_REPO = 'arbaazij/back_jnks'
+    }
+
+    stages {
+        stage('Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'Git-token', url: 'https://github.com/arbaaz29/pipeline.git'
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                dir('App-files/backend') {
+                    withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
+                        withSonarQubeEnv('SonarQube') {
+                            sh """
+                            ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.login=${tkn}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        // stage('Quality Gate') {
+        //     steps {
+        //         withCredentials([string(credentialsId: 'sonarqube_token', variable: 'tkn')]) {
+        //             withSonarQubeEnv('SonarQube') {
+        //                 script {
+        //                     waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_token'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        // stage('OWASP Dependency-Check Scan') {
+        //     steps {
+        //         dir('App-files/backend') {
+        //             dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+        //             dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        //         }
+        //     }
+        // }
+
+        stage('Trivy File Scan') {
+            steps {
+                dir('App-files/backend') {
+                    sh 'trivy fs . > trivyfs.txt'
+                }
+            }
+        }
+
+        stage('Docker Image Build') {
+            steps {
+                script {
+                    withCredentials([usernamePassword (credentialsId:"docker_creds", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+                        dir('App-files/backend'){
+                            sh 'docker build -t ${DOCKERHUB_REPO}:${BUILD_NUMBER} .'
+                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                            sh "docker push ${DOCKERHUB_REPO}:${BUILD_NUMBER}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+                sh 'trivy image ${DOCKERHUB_REPO} --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html'
+            }
+        }
+
+        stage('Checkout Code') {
+            steps {
+                git  branch: 'main', credentialsId: 'Git-token', url: 'https://github.com/arbaaz29/pipeline.git'
+            }
+        }
+
+        stage('Update Deployment file') {
+            environment {
+                GIT_REPO_NAME = "pipeline"
+                GIT_USER_NAME = "arbaaz29"
+            }
+            steps {
+                dir('k8s/Manifests') {
+                    withCredentials([string(credentialsId: 'Git', variable: 'GITHUB_TOKEN')]) {
+                        sh '''
+                            git config user.email "arbazij@gmail.com"
+                            git config user.name "arbaaz29"
+                            BUILD_NUMBER=${BUILD_NUMBER}
+                            echo $BUILD_NUMBER
+                            imageTag=$(grep -oP '(?<=back_jnks:)[^ ]+' backend-deployment.yaml)
+                            echo $imageTag
+                            sed -i "s/${imageTag}/${BUILD_NUMBER}/" backend-deployment.yaml
+                            git add backend-deployment.yaml
+                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
+                            git push https://${GITHUB_TOKEN}@github.com/arbaaz29/${GIT_REPO_NAME} HEAD:main
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
