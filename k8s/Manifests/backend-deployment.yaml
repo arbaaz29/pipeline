@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: back
-          image: arbaazij/back_jnks:latest
+          image: arbaazij/back_jnks:32
           ports:
             - containerPort: 5000
