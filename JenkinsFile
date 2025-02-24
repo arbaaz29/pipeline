@@ -10,7 +10,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'sonar_scanner'
         SONAR_PROJECT_KEY = 'npm_back'
         SONAR_HOST = "http://localhost:9000/"
-        DOCKERHUB_REPO = 'arbaazij/backend_j'
+        DOCKERHUB_REPO = 'arbaazij/backend_jnks'
         DOCKER_REG = "docker.io"
         IMAGE_TAG = "latest"
     }
@@ -115,7 +115,7 @@ pipeline {
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=back_jnks:)[^ ]+' backend-deployment.yaml)
                             echo $imageTag
-                            sed -i "s/${DOCKER_REPO}:${IMAGE_TAG}/${DOCKER_REPO}:${IMAGE_TAG}/" backend-deployment.yaml
+                            sed -i "s/${DOCKERHUB_REPO}:${IMAGE_TAG}/${DOCKERHUB_REPO}:${IMAGE_TAG}/" backend-deployment.yaml
                             git add backend-deployment.yaml
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
                             git push https://${GITHUB_TOKEN}@github.com/arbaaz29/${GIT_REPO_NAME} HEAD:main
