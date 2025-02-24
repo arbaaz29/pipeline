@@ -115,7 +115,7 @@ pipeline {
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=back_jnks:)[^ ]+' backend-deployment.yaml)
                             echo $imageTag
-                            sed -i "s/${DOCKERHUB_REPO}:${imageTag}/${DOCKERHUB_REPO}:${BUILD_NUMBER}/" backend-deployment.yaml
+                            sed -i "s/${imageTag}/${BUILD_NUMBER}/" backend-deployment.yaml
                             git add backend-deployment.yaml
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
                             git push https://${GITHUB_TOKEN}@github.com/arbaaz29/${GIT_REPO_NAME} HEAD:main
