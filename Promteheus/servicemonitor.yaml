@@ -15,7 +15,7 @@ spec:
       path: /metrics
   selector:
     matchLabels:
-      app: backend-service
+      app: back
   namespaceSelector:
     matchNames:
       - default
@@ -37,7 +37,7 @@ spec:
       path: /api/metrics
   selector:
     matchLabels:
-      app: frontend-service
+      app: front
   namespaceSelector:
     matchNames:
       - default
