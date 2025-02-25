@@ -1,0 +1,43 @@
+# the prometheus stack should be running in namespace montoring
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: backmon
+    release: monitoring
+  name: backmon
+  namespace: monitoring
+spec:
+  jobLabel: job_back
+  endpoints:
+    - interval: 2s
+      targetPort: 5000
+      path: /metrics
+  selector:
+    matchLabels:
+      app: backend-service
+  namespaceSelector:
+    matchNames:
+      - default
+---
+# the prometheus stack should be running in namespace montoring
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: frontmon
+    release: monitoring
+  name: frontmon
+  namespace: monitoring
+spec:
+  jobLabel: job_front
+  endpoints:
+    - interval: 2s
+      targetPort: 3000
+      path: /api/metrics
+  selector:
+    matchLabels:
+      app: frontend-service
+  namespaceSelector:
+    matchNames:
+      - default
