@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: front
-          image: arbaazij/front_jnks:11
+          image: arbaazij/front_jnks:12
           ports:
             - containerPort: 3000
