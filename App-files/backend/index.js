@@ -2,7 +2,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const promClient = require('prom-client');
 require('dotenv').config();
+
+const httpRequestCounter = new promClient.Counter({
+	name: "http_requests_total",
+	help: "Total number of http requests",
+	labelNames: ['method', 'path', 'status_code'], 
+});
 
 const app = express();
 app.disable("x-powered-by");
@@ -10,6 +17,18 @@ app.disable("x-powered-by");
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = (Date.now() - start) / 1000; // Duration in seconds
+        const { method, url } = req;
+        const statusCode = res.statusCode; // Get the actual HTTP status code
+        httpRequestCounter.labels({ method, path: url, status_code: statusCode }).inc();
+        });
+    next();
+});
+
+
 
 // MongoDB connection
 mongoose.connect('mongodb://mongo/notekeeper', {
@@ -137,6 +156,11 @@ app.delete('/notes/:id', async (req, res) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Something went wrong!', error: err.message });
+});
+
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
 });
 
 // Start server

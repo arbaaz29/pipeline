@@ -8,9 +8,11 @@ const NoteKeeper = () => {
   const [currentNote, setCurrentNote] = useState({ title: '', content: '', id: null });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [metrics, setMetrics] = useState(null);
 
   useEffect(() => {
     fetchNotes();
+    fetchMetrics();
   }, []);
 
   const fetchNotes = async () => {
@@ -21,6 +23,17 @@ const NoteKeeper = () => {
       setNotes(data);
     } catch (err) {
       console.error('Error:', err);
+    }
+  };
+
+  const fetchMetrics = async () => {
+    try {
+      const response = await fetch('/metrics');
+      if (!response.ok) throw new Error('Failed to fetch metrics');
+      const text = await response.text();
+      setMetrics(text);
+    } catch (err) {
+      console.error('Error fetching metrics:', err);
     }
   };
 
@@ -51,6 +64,7 @@ const NoteKeeper = () => {
       await fetchNotes();
       setCurrentNote({ title: '', content: '', id: null });
       setIsEditing(false);
+      fetchMetrics();
     } catch (err) {
       console.error('Error:', err);
     } finally {
@@ -62,6 +76,7 @@ const NoteKeeper = () => {
     try {
       await fetch(`/api/notes/${id}`, { method: 'DELETE' });
       await fetchNotes();
+      fetchMetrics();
     } catch (err) {
       console.error('Error:', err);
     }
