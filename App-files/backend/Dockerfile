@@ -12,6 +12,7 @@ RUN npm ci --omit=dev --ignore-scripts \
     && npm audit --production --audit-level=high || true
 
 # Copy only necessary application files to minimize attack surface
+COPY node_modules ./
 COPY index.js ./
 
 # Remove unnecessary files to reduce image size and vulnerabilities
