@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: server
+spec:
+  replicas: 2
+  serviceAccountName: prometheus-k8s # if you change this you will have to create role binds according to the new names
+  serviceMonitorSelector:
+    matchExpressions:
+      - key: backmon # name of the service monitor
+        operator: Exists
+  ruleSelector:
+    matchLabels:
+      role: prometheus-rulefiles
+      prometheus: k8s
+  podMonitorSelector: {}
+  probeSelector: {}
+  alerting:
+    alertmanagers:
+      - namespace: monitoring
+        name: alertmanager-main
+        port: web

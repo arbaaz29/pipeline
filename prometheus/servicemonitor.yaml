@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-monitor
+  labels:
+    backmon: backend-monitor # backmon acts as a selector label
+  namespace: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: back # better if you add it via teams
+  endpoints:
+    - interval: 30s
+      path: /metrics
+      targetPort: 5000
