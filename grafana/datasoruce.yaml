@@ -1,0 +1,20 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: grafanadatasource-sample
+spec:
+  datasource:
+    access: proxy
+    isDefault: true
+    jsonData:
+      timeInterval: 5s
+      tlsSkipVerify: true
+    name: prometheus
+    type: prometheus
+    url: 'http://prometheus-operated:9090' # similar to prometheus service in monitoring namespace
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana-a
+  plugins:
+    - name: grafana-clock-panel
+      version: 1.3.0
