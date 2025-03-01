@@ -592,7 +592,7 @@ Grafana:
 
 <image src="/images/675c4beb-c387-4678-888e-102a1c33abe4.png" width="900"/>
 
-Refrences:
+References:
 
 https://faun.pub/using-the-operator-lifecycle-manager-to-deploy-prometheus-on-openshift-cd2f3abb3511
 
