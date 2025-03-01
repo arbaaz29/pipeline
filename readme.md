@@ -1,3 +1,12 @@
+---
+title: "CI/CD Pipeline"
+description: "Automate integration and Deployment using Jenkins and ArgoCD"
+dateString: February 2025
+draft: false
+tags: ["CI/CD", "SRE", "SonarQube", "Walkthrough", "Jenkins", "Docker", "Docker-Compose", "Static Analytics", "Dependency check", "Trivy", "Prometheus", "Grafana", "Minikube", "Kubectl", "OLM", "Helm", "CRDs", "SVC"]
+weight: 92
+---
+
 # CI/CD Pipeline
 
 Deploy a CI/CD pipeline into your home lab
@@ -268,6 +277,20 @@ SonarQube uses code scores and quality gates to evaluate and enforce the quality
 <image src="/images/image%2011.png" width="900"/>
 
 <image src="/images/image%2012.png" width="900"/>
+
+### Trivy:
+
+Install trivy:
+
+https://trivy.dev/v0.18.3/installation/
+
+```bash
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+```
 
 ## OLM (Operator Lifecycle Management):
 
@@ -569,7 +592,7 @@ Grafana:
 
 <image src="/images/675c4beb-c387-4678-888e-102a1c33abe4.png" width="900"/>
 
-Referneces:
+Refrences:
 
 https://faun.pub/using-the-operator-lifecycle-manager-to-deploy-prometheus-on-openshift-cd2f3abb3511
 
