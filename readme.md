@@ -2,7 +2,9 @@
 
 Deploy a CI/CD pipeline into your home lab
 
-All files are available here - https://github.com/arbaaz29/pipeline/tree/main 
+<image src="/images/CI-CD.png" width="900">
+
+
 
 ## Docker:
 
