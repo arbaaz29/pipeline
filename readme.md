@@ -96,14 +96,14 @@ https://docs.docker.com/engine/install/
     ```
     
 5. Go to Manage Jenkins→ System and configure SonarQube installations 
-    1. Keep a note of the **Name** (needs to be similar to scm)
+    1. Keep a note of the **Name** field (The scm scripts environment will refer these names)
     
     <image src="/images/image%201.png" width="900"/>
     
     <image src="/images/image%202.png" width="900"/>
     
 6. Go to Manage Jenkins → Tools configure jdk, SonarQube Scanner installations, NodeJS Installations, and Docker Installations
-    1. Keep a note of the **Name** (needs to be similar to scm)
+    1. Keep a note of the **Name** field (The scm scripts environment will refer these names)
     
     <image src="/images/image%203.png" width="900"/>
     
@@ -205,9 +205,13 @@ https://docs.docker.com/engine/install/
       postgres_data:
     ```
     
+2. Setup → 
+    1. Access the instance at port 9000, i.e., [http://localhost:9000](http://localhost:9000) 
+    2. Create a local project
+    3. The **name you give to the project** is **projecKey;** in this case, it is **npm_back** for **backend** and **npm_front** for **frontend**
+    4. After creating a project, on the top right corner, you will find **Security** under **My Account. T**here is an option to **generate tokens.** Give it a name and select the type of global analysis token if you want to grant admin access or select project analysis token so you grant only access to the respective project. Set an expiration date in click on generate now copy paste the token somewhere safe for the time being, once generated you cannot view it again after closing the tab
 
 <image src="/images/image%2010.png" width="900"/>
-
 
 <image src="/images/image%2011.png" width="900"/>
 
@@ -274,13 +278,12 @@ fi
     
     <image src="/images/image%2013.png" width="900"/>
     
-    A misconfigured image had been pushed to GitHub, which resulted in the new image failing. Seeing this, the ArgoCD deployed an old working version as a failover and self-healing measure
-    
-    The problematic version was **back_jnks:41**
+    In the following image you can see how ArgoCD implements self-healing measure. In this instance, the back image was not configured properly and was not able to work in a k8s environment. ArgoCD detected that the new pod images are not healthy which resulted in ArgoCD deploying the last healthy image that was deployed into the k8s environment
     
     <image src="/images/image%2014.png" width="900"/>
+
+    In the following image ArgoCD detects a new version in the manifests and implenets the new image, detecting that the new pods are healthy it automatically deletes the old stable pod from the environment
     
-    This is the result after a properly configured back_jnks image was pushed to docker. ArgoCD applied the new manifests as they were healthy and working properly it killed the old container
     
     <image src="/images/image%2015.png" width="900"/>
     
@@ -359,121 +362,6 @@ fi
     
     <image src="/images/image%2017.png" width="900"/>
     
-
-# Exposing Custom metrics for better visibility
-
-### Metrics:
-
-Metrics type:
-
-1. Counter → always incrementing, will never decrement 
-    1. e.g., number of http requests, number of users signed up (even if the user deleted his account, he did create it beforehand so it will be held as a counter metric), etc
-2. gauge →it will show variations like incrementing and decrementing at the instance
-    1. e.g. - configmap, CPU util, memory util
-3. histogram → specific records of data. That is, buckets of specific conditions of metrics will be created, and if the metric matches the condition, it will be added to the bucket
-    1. e.g, imagine the conditions are for latency, buckets of specific time duration will be created, for instance, bucket1-5ms, bucket2-10ms. Now, when the request for response meets these latency conditions, they will be added to their respective buckets
-4. summary → similar to histogram
-
-## Creating custom metrics for your application:
-
-1. If you want to use any other metric collector except Prometheus, you can use open-telemetry (it is a generic module that helps aggregate metrics that can be interpreted by the respective implementation)
-2. If using Prometheus (best for k8s):
-    1. npm specific implementation:
-        
-        ```bash
-        npm install prom-client
-        ```
-        
-    2. Add the promclient to your code:
-        
-        ```jsx
-        const promClient = require('prom-client');
-        
-        //following are the basic templates you can use for metrics
-        //adding a http counter:
-        const httpRequestCounter = new promClient.Counter({
-            name: "http_requests_total",
-            help: "Total number of http requests",
-            labelNames: ['method', 'path', 'status_code'], 
-        });
-        
-        //adding a duration histogram
-        const requestDuration = new promClient.Histogram({
-            name: "http_requests_duration_seconds",
-            help: "duration of http requests in seconds",
-            labelNames: ['method', 'path', 'status_code'],
-            buckets: [0.1, 0.5, 1, 5, 10], //buckets for histograms in seconds 
-        });
-        
-        //adding a duration summary
-        const requestDurationSummary = new promClient.Summary({
-            name: "http_requests_summary_seconds",
-            help: "Summary of http requests in seconds",
-            labelNames: ['method', 'path', 'status_code'],
-            buckets: [0.5, 0.9, 0.99], //Percenties
-        });
-        
-        // gauge metric
-        const gauge = new promClient.Gauge({
-            name: "node_gauge",
-            help: "gauge tracking async task duration",
-            labelNames: ['method', 'status_code'], 
-        });
-        
-        ```
-        
-    3. These metrics are specific to my implementation, you will need to customize them according to your needs
-        
-        ```jsx
-        //Middleware to track metrics
-        app.use((req, res, next) => {
-            const start = Date.now();
-            res.on('finish', () => {
-                const duration = (Date.now() - start) / 1000; // Duration in seconds
-                const { method, url } = req;
-                const statusCode = res.statusCode; // Get the actual HTTP status code
-                httpRequestCounter.labels({ method, path: url, status_code: statusCode }).inc();
-                requestDuration.labels({ method, path: url, status_code: statusCode }).observe(duration);
-                requestDurationSummary.labels({ method, path: url, status_code: statusCode }).observe(duration);
-            });
-            next();
-        });
-        
-        // to expose metrics 
-        //you will need to add this api route
-        app.get('/metrics', async (req, res) => {
-            res.set('Content-Type', promClient.register.contentType);
-            res.end(await promClient.register.metrics());
-        });
-        ```
-        
-    4. Exposing metrics using service discovery:
-        
-        ```yaml
-        # the prometheus stack should be running in namespace montoring
-        apiVersion: monitoring.coreos.com/v1
-        kind: ServiceMonitor
-        metadata:
-          labels:
-            backmon: backend-monitor
-            release: monitoring
-          name: backmon
-          namespace: monitoring
-        spec:
-          jobLabel: job_back
-          endpoints:
-            - interval: 2s
-              targetPort: 5000
-              path: /metrics
-          selector:
-            matchLabels:
-              app: back
-          namespaceSelector:
-            matchNames:
-              - default
-        ```
-        
-
 ## Grafana:
 
 1. Install grafana using operator:
@@ -523,4 +411,6 @@ https://faun.pub/using-the-operator-lifecycle-manager-to-deploy-prometheus-on-op
 https://operatorhub.io/operator/prometheus#
 
 https://operatorhub.io/operator/grafana-operator
+
+For detailed explaination visit: https://arbaazz.netlify.app/writeups/CI-CD/
 
