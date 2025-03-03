@@ -1,12 +1,3 @@
----
-title: "CI/CD Pipeline"
-description: "Automate integration and Deployment using Jenkins and ArgoCD"
-dateString: February 2025
-draft: false
-tags: ["CI/CD", "SRE", "SonarQube", "Walkthrough", "Jenkins", "Docker", "Docker-Compose", "Static Analytics", "Dependency check", "Trivy", "Prometheus", "Grafana", "Minikube", "Kubectl", "OLM", "Helm", "CRDs", "SVC"]
-weight: 92
----
-
 # CI/CD Pipeline
 
 Deploy a CI/CD pipeline into your home lab
@@ -14,16 +5,6 @@ Deploy a CI/CD pipeline into your home lab
 All files are available here - https://github.com/arbaaz29/pipeline/tree/main 
 
 ## Docker:
-
-Docker is an open-source platform that simplifies application development, deployment, and management using containerization. Containers package applications and their dependencies into a lightweight, portable unit that runs consistently across different environments. Unlike traditional virtual machines, Docker containers share the host OS kernel, making them more efficient and faster to start.
-
-With Docker, developers can:
-
-- Ensure consistency across development, testing, and production environments.
-- Easily scale applications by deploying multiple container instances.
-- Improve resource utilization compared to traditional virtualization.
-
-Key Docker components include **Docker Engine**, **Docker Images**, **Docker Containers**, and **Docker Compose**. It is widely used in DevOps, microservices architectures, and cloud-native development.
 
 For installation, follow the steps from the official website:
 
@@ -67,18 +48,6 @@ https://docs.docker.com/engine/install/
 
  https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download
 
-Kubernetes (K8s) is an open-source container orchestration platform that automates containerized applications deployment, scaling, and management. Kubernetes enables organizations to run applications reliably across clusters of machines.
-
-Key features of Kubernetes include:
-
-- **Automated Scaling** – Adjusts application instances based on demand.
-- **Self-healing** – Restarts failed containers and reschedules them as needed.
-- **Load Balancing** – Distributes traffic efficiently across containers.
-- **Service Discovery** – Provides built-in mechanisms to find and communicate with services.
-- **Declarative Configuration** – Uses YAML manifests to define desired application states.
-
-Kubernetes is widely used for managing microservices, hybrid cloud deployments, and large-scale distributed applications.
-
 1. Start minikube ( ubuntu ):
     
     ```bash
@@ -100,18 +69,6 @@ Kubernetes is widely used for managing microservices, hybrid cloud deployments, 
     
 
 ## Jenkins:
-
-Jenkins is an open-source automation server used for **continuous integration (CI) and continuous delivery (CD)** in software development. It allows developers to automate building, testing, and deploying applications, ensuring faster and more reliable software releases.
-
-### Key Features of Jenkins:
-
-- **Pipeline Automation** – Automates the software delivery process using declarative or scripted pipelines.
-- **Extensibility** – It supports hundreds of plugins that can be integrated with various tools like Git, Docker, Kubernetes, and AWS.
-- **Distributed Builds** – Runs tasks on multiple machines to improve efficiency.
-- **Version Control Integration** – Works seamlessly with Git, SVN, and other version control systems.
-- **Customizable Workflows** – Enables teams to define workflows tailored to their development needs.
-
-Jenkins is widely used in DevOps to streamline CI/CD pipelines, making software development more efficient and scalable.
 
 1. Install Jenkins: https://www.jenkins.io/doc/book/installing/linux/
 2. Add Jenkins to the Docker group:
@@ -203,18 +160,6 @@ Jenkins is widely used in DevOps to streamline CI/CD pipelines, making software 
 
 ## SonarQube:
 
-SonarQube is an open-source platform for **continuous code quality and security analysis**. It helps developers identify bugs, vulnerabilities, and code smells in applications by performing **static code analysis** on various programming languages. SonarQube integrates seamlessly into CI/CD pipelines to ensure high-quality and maintainable code.
-
-### Key Features of SonarQube:
-
-- **Code Quality Analysis** – Detects code smells, duplicated code, and maintainability issues.
-- **Security Scanning** – Identifies vulnerabilities and security hotspots.
-- **Technical Debt Measurement** – Provides insights into the effort needed to fix code issues.
-- **Multi-language Support** – Analyzes over 25 programming languages, including Java, Python, and JavaScript.
-- **Integration with DevOps Tools** – Works with Jenkins, GitHub, GitLab, Bitbucket, and more.
-
-SonarQube helps teams enforce coding standards, improve security, and maintain clean, reliable code throughout the software development lifecycle.
-
 1. This is a docker-compose file to create a sonar qube instance with persistent storage so that you don’t need to create a new api key and user for every time you restart sonarqube
     
     ```yaml
@@ -260,19 +205,9 @@ SonarQube helps teams enforce coding standards, improve security, and maintain c
       postgres_data:
     ```
     
-2. Setup → 
-    1. Access the instance at port 9000, i.e., [http://localhost:9000](http://localhost:9000) 
-    2. Create a local project
-    3. The **name you give to the project** is **projecKey;** in this case, it is **npm_back** for **backend** and **npm_front** for **frontend**
-    4. After creating a project, on the top right corner, you will find **Security** under **My Account. T**here is an option to **generate tokens. G**ive it a name and select the type of global analysis token if you want to grant admin access or select project analysis token so you grant only access to the respective project. Set an expiration date in click on generate now copy paste the token somewhere safe for the time being, once generated you cannot view it again after closing the tab
 
 <image src="/images/image%2010.png" width="900"/>
 
-SonarQube uses code scores and quality gates to evaluate and enforce the quality of your code
-
-- **Code Scores**: These are numerical ratings given to different aspects of your code, like code complexity, duplication, and potential bugs. Higher scores usually indicate better quality, with the focus being on improving maintainability, security, and reliability
-- **Quality Gates**: A quality gate is a set of conditions that your code must pass to be considered acceptable for deployment. It typically includes criteria like no new critical bugs, no security vulnerabilities, and sufficient test coverage. If the code fails the quality gate, it won’t be promoted to production
-- These tools help ensure that the code is both high-quality and secure, reducing the risk of defects in production
 
 <image src="/images/image%2011.png" width="900"/>
 
@@ -293,17 +228,6 @@ sudo apt-get install trivy
 ```
 
 ## OLM (Operator Lifecycle Management):
-
-**Operator Lifecycle Manager (OLM)** is a framework in Kubernetes that helps manage the installation, upgrade, and lifecycle of **Operators**—specialized controllers that extend Kubernetes functionalities. OLM simplifies Operator deployment by handling dependencies, updates, and permission management, ensuring seamless application management within a cluster.
-
-### Key Features of OLM:
-
-- **Automated Operator Installation & Upgrades**
-- **Dependency Management** for Operators
-- **RBAC (Role-Based Access Control) Handling**
-- **Operator Catalog for Discoverability**
-
-OLM is widely used in **Red Hat OpenShift** and Kubernetes environments to streamline the deployment and maintenance of Operators, making application management more efficient.
 
 Manual Install:
 
